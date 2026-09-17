@@ -46,6 +46,7 @@ export default async function GroupDetailPage({
     );
   }
 
+  // Safe serialization for Server-to-Client boundaries
   const group = JSON.parse(JSON.stringify(rawGroup));
   const isAdminOrOwner = group.my_role === "owner" || group.my_role === "admin";
 

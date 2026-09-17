@@ -85,7 +85,10 @@ export function TaskCard({
           <DropdownMenuItem onClick={() => onEdit(task)}>
             <Pencil className="h-4 w-4" /> Edit
           </DropdownMenuItem>
-          <DropdownMenuItem variant="destructive" onClick={() => onDelete(task)}>
+          <DropdownMenuItem 
+            className="text-destructive focus:text-destructive focus:bg-destructive/10" 
+            onClick={() => onDelete(task)}
+          >
             <Trash2 className="h-4 w-4" /> Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
