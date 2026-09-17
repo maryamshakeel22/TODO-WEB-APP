@@ -37,9 +37,6 @@ export function TaskList({
   const [deletingTask, setDeletingTask] = React.useState<TodoWithRelations | null>(null);
   const [deleting, setDeleting] = React.useState(false);
 
-  // Both hooks are always called (Rules of Hooks); each is a no-op
-  // internally when its own id is undefined, so exactly one is ever
-  // actually active for a given page.
   useRealtimeGroupTodos(groupId);
   useRealtimePersonalTodos(groupId ? undefined : userId);
 
@@ -80,7 +77,7 @@ export function TaskList({
 
       {tasks.length === 0 ? (
         <EmptyState
-          icon={CheckSquare}
+          icon={<CheckSquare className="h-6 w-6 text-muted-foreground" />}
           title={hasActiveFilters ? "No tasks match your filters" : emptyLabel}
           description={hasActiveFilters ? "Try adjusting your search or filters." : "Create a task to get started."}
           action={

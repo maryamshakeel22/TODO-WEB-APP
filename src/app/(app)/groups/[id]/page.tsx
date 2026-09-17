@@ -28,15 +28,14 @@ export default async function GroupDetailPage({
     redirect(`/login?redirectTo=/groups/${id}`);
   }
 
-  let group = null;
+  let rawGroup = null;
   try {
-    group = await getGroupDetail(id);
+    rawGroup = await getGroupDetail(id);
   } catch (e) {
-    console.error("Group detail fetch error:", e);
-    group = null;
+    rawGroup = null;
   }
 
-  if (!group) {
+  if (!rawGroup) {
     return (
       <div className="rounded-lg border border-dashed border-destructive/50 p-8 text-center space-y-3">
         <h3 className="text-lg font-medium text-destructive">Group Access Denied or Not Found</h3>
@@ -47,11 +46,13 @@ export default async function GroupDetailPage({
     );
   }
 
+  // Pure plain JSON Object banayein (Remove Functions/Symbols/JSX)
+  const group = JSON.parse(JSON.stringify(rawGroup));
   const isAdminOrOwner = group.my_role === "owner" || group.my_role === "admin";
 
-  let members: any[] = [];
-  let tasks: any[] = [];
-  let invitations: any[] = [];
+  let members = [];
+  let tasks = [];
+  let invitations = [];
 
   try {
     const rawMembers = await listGroupMembers(id);
@@ -78,14 +79,11 @@ export default async function GroupDetailPage({
     }
   }
 
-  // Safe serializable group object
-  const safeGroup = JSON.parse(JSON.stringify(group));
-
   return (
     <div className="space-y-6">
-      <GroupHeader group={safeGroup} myRole={safeGroup.my_role} />
+      <GroupHeader group={group} myRole={group.my_role} />
 
-      {safeGroup.my_role ? (
+      {group.my_role ? (
         <Tabs defaultValue="tasks">
           <TabsList>
             <TabsTrigger value="tasks">Tasks ({tasks.length})</TabsTrigger>
@@ -101,11 +99,11 @@ export default async function GroupDetailPage({
               groupId={id}
               groupMembers={members}
               emptyLabel="No tasks in this group yet"
-              canCreate={Boolean(safeGroup.my_role)}
+              canCreate={Boolean(group.my_role)}
             />
           </TabsContent>
           <TabsContent value="members">
-            <MembersList groupId={id} members={members} myRole={safeGroup.my_role} currentUserId={user.id} />
+            <MembersList groupId={id} members={members} myRole={group.my_role} currentUserId={user.id} />
           </TabsContent>
           {isAdminOrOwner ? (
             <TabsContent value="invitations">

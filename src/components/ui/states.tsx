@@ -24,16 +24,20 @@ export function EmptyState({
   description?: string;
   action?: React.ReactNode;
 }) {
+  const renderIcon = () => {
+    if (!Icon) return null;
+    if (React.isValidElement(Icon)) return Icon;
+    
+    // Safely handle Lucide Icon components
+    const Component = Icon as React.ElementType;
+    return <Component className="h-6 w-6 text-muted-foreground" aria-hidden />;
+  };
+
   return (
     <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border px-6 py-12 text-center">
       {Icon ? (
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
-          {React.isValidElement(Icon) ? (
-            Icon
-          ) : typeof Icon === "function" || typeof Icon === "object" ? (
-            // @ts-ignore
-            <Icon className="h-6 w-6 text-muted-foreground" aria-hidden />
-          ) : null}
+          {renderIcon()}
         </div>
       ) : null}
       <div className="space-y-1">
