@@ -24,20 +24,20 @@ export default async function GroupDetailPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  // 1. Unauthenticated users ko login par bhejien (Reload Loop Stop karne ke liye)
+  // 1. Unauthenticated Check
   if (!user) {
     redirect(`/login?redirectTo=/groups/${id}`);
   }
 
-  // 2. Safe Group Detail Fetching
+  // 2. Safe Group Data Fetching
   let group = null;
   try {
     group = await getGroupDetail(id);
   } catch (e) {
+    console.error("Failed to load group detail:", e);
     group = null;
   }
 
-  // 3. Agar group na miley to Reload loop ki bajaye proper UI show karein
   if (!group) {
     return (
       <div className="rounded-lg border border-dashed border-destructive/50 p-8 text-center space-y-3">
@@ -55,6 +55,7 @@ export default async function GroupDetailPage({
   let tasks: any[] = [];
   let invitations: any[] = [];
 
+  // 3. Safe Parallel/Independent Data Fetching
   try {
     members = await listGroupMembers(id);
   } catch (e) {
@@ -63,15 +64,16 @@ export default async function GroupDetailPage({
 
   if (group.my_role) {
     try {
-      tasks = await listTodos({ scope: { groupId: id } });
+      tasks = (await listTodos({ scope: { groupId: id } })) ?? [];
     } catch (e) {
+      console.error("Failed to fetch group tasks:", e);
       tasks = [];
     }
   }
 
   if (isAdminOrOwner) {
     try {
-      invitations = await listGroupInvitations(id);
+      invitations = (await listGroupInvitations(id)) ?? [];
     } catch (e) {
       invitations = [];
     }
@@ -86,11 +88,12 @@ export default async function GroupDetailPage({
           <TabsList>
             <TabsTrigger value="tasks">Tasks ({tasks.length})</TabsTrigger>
             <TabsTrigger value="members">Members ({members.length})</TabsTrigger>
-            {isAdminOrOwner ? <TabsTrigger value="invitations">Invitations</TabsTrigger> : null}
+            {isAdminOrOwner ? <TabsTrigger value="invitations">Invitations ({invitations.length})</TabsTrigger> : null}
           </TabsList>
           <TabsContent value="tasks">
             <TaskList
               tasks={tasks}
+              userId={user.id}
               groupId={id}
               groupMembers={members}
               emptyLabel="No tasks in this group yet"
@@ -98,7 +101,7 @@ export default async function GroupDetailPage({
             />
           </TabsContent>
           <TabsContent value="members">
-            <MembersList groupId={id} members={members} myRole={group.my_role} currentUserId={user?.id} />
+            <MembersList groupId={id} members={members} myRole={group.my_role} currentUserId={user.id} />
           </TabsContent>
           {isAdminOrOwner ? (
             <TabsContent value="invitations">
