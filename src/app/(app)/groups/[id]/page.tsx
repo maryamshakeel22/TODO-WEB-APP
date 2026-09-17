@@ -9,25 +9,32 @@ import { getGroupDetail, listGroupMembers } from "@/lib/data/groups";
 import { listGroupInvitations } from "@/lib/data/invitations";
 import { listTodos } from "@/lib/data/todos";
 
-export default async function GroupDetailPage({ params }: { params: Promise<{ id: string }> }) {
+// Vercel par static caching disable karke dynamic render force karein
+export const dynamic = "force-dynamic";
+
+export default async function GroupDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
+  if (!id) notFound();
+
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const group = await getGroupDetail(id);
-  // RLS returns nothing for private groups the user can't see, and
-  // for ids that don't exist - both are correctly treated as 404
-  // rather than leaking which case it was.
+  const group = await getGroupDetail(id).catch(() => null);
   if (!group) notFound();
 
   const isAdminOrOwner = group.my_role === "owner" || group.my_role === "admin";
 
+  // Error catch add karne se page Vercel par hang hone se bachega
   const [members, tasks, invitations] = await Promise.all([
-    listGroupMembers(id),
-    group.my_role ? listTodos({ scope: { groupId: id } }) : Promise.resolve([]),
-    isAdminOrOwner ? listGroupInvitations(id) : Promise.resolve([]),
+    listGroupMembers(id).catch(() => []),
+    group.my_role ? listTodos({ scope: { groupId: id } }).catch(() => []) : Promise.resolve([]),
+    isAdminOrOwner ? listGroupInvitations(id).catch(() => []) : Promise.resolve([]),
   ]);
 
   return (

@@ -8,17 +8,20 @@ interface CookieToSet {
   options: CookieOptions;
 }
 
+/**
+ * Server Supabase client for use in Server Components, Route
+ * Handlers, and Server Actions. Reads/writes the user's session via
+ * cookies so RLS is evaluated as the signed-in user - never as an
+ * admin/service role. No secret key is used or needed here.
+ */
 export async function createClient() {
   const cookieStore = await cookies();
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  // Standard Supabase variable name fallbacks
-  const publishableKey =
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!url || !publishableKey) {
     throw new Error(
-      "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY / NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY."
+      "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY."
     );
   }
 
@@ -33,7 +36,9 @@ export async function createClient() {
             cookieStore.set(name, value, options)
           );
         } catch {
-          // Server Component se call hone par handle karein
+          // Called from a Server Component - the middleware is
+          // responsible for refreshing the session cookie in that
+          // case, so this can be safely ignored.
         }
       },
     },
