@@ -11,7 +11,6 @@ function useTableRealtime(
   onEvent?: (payload: unknown) => void
 ) {
   const router = useRouter();
-  // Singleton client instance keep karein
   const [supabase] = useState(() => createClient());
   const onEventRef = useRef(onEvent);
 
@@ -22,11 +21,17 @@ function useTableRealtime(
   useEffect(() => {
     if (!filter) return;
 
-    // Fixed stable name - No Date.now() or Math.random()
     const channelId = `realtime-${channelName}-${table}-${filter}`;
-    const channel = supabase.channel(channelId);
+    
+    // Agar pehle se same channel ID ka instance ho to clean karein
+    const existingChannel = supabase.getChannels().find((ch) => ch.topic === `realtime:${channelId}`);
+    if (existingChannel) {
+      supabase.removeChannel(existingChannel);
+    }
 
-    channel
+    // Always attach .on() listener BEFORE calling .subscribe()
+    const channel = supabase
+      .channel(channelId)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table, filter },
@@ -34,12 +39,13 @@ function useTableRealtime(
           onEventRef.current?.(payload);
           router.refresh();
         }
-      )
-      .subscribe((status) => {
-        if (status === "CHANNEL_ERROR") {
-          console.warn(`Realtime channel error on table: ${table}`);
-        }
-      });
+      );
+
+    channel.subscribe((status) => {
+      if (status === "CHANNEL_ERROR") {
+        console.warn(`Realtime channel error on table: ${table}`);
+      }
+    });
 
     return () => {
       supabase.removeChannel(channel);
