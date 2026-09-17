@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { CheckSquare, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EmptyState, ConfirmDialog } from "@/components/ui/states";
 import { TaskCard } from "@/components/tasks/task-card";
@@ -77,7 +77,6 @@ export function TaskList({
 
       {tasks.length === 0 ? (
         <EmptyState
-          icon={<CheckSquare className="h-6 w-6 text-muted-foreground" aria-hidden />}
           title={hasActiveFilters ? "No tasks match your filters" : emptyLabel}
           description={hasActiveFilters ? "Try adjusting your search or filters." : "Create a task to get started."}
           action={

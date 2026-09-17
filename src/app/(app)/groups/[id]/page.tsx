@@ -46,7 +46,7 @@ export default async function GroupDetailPage({
     );
   }
 
-  // Pure plain JSON Object banayein (Remove Functions/Symbols/JSX)
+  // Ensure plain JSON objects cross the boundary safely
   const group = JSON.parse(JSON.stringify(rawGroup));
   const isAdminOrOwner = group.my_role === "owner" || group.my_role === "admin";
 
@@ -79,6 +79,8 @@ export default async function GroupDetailPage({
     }
   }
 
+  const currentUserId = String(user.id);
+
   return (
     <div className="space-y-6">
       <GroupHeader group={group} myRole={group.my_role} />
@@ -95,7 +97,7 @@ export default async function GroupDetailPage({
           <TabsContent value="tasks">
             <TaskList
               tasks={tasks}
-              userId={user.id}
+              userId={currentUserId}
               groupId={id}
               groupMembers={members}
               emptyLabel="No tasks in this group yet"
@@ -103,7 +105,7 @@ export default async function GroupDetailPage({
             />
           </TabsContent>
           <TabsContent value="members">
-            <MembersList groupId={id} members={members} myRole={group.my_role} currentUserId={user.id} />
+            <MembersList groupId={id} members={members} myRole={group.my_role} currentUserId={currentUserId} />
           </TabsContent>
           {isAdminOrOwner ? (
             <TabsContent value="invitations">
