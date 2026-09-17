@@ -8,6 +8,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 export const metadata: Metadata = {
   title: "TaskTogether — Collaborative Todo App",
   description: "Personal and team tasks, groups, and real-time collaboration.",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
