@@ -77,7 +77,7 @@ export function TaskList({
 
       {tasks.length === 0 ? (
         <EmptyState
-          icon={<CheckSquare className="h-6 w-6 text-muted-foreground" />}
+          icon={<CheckSquare className="h-6 w-6 text-muted-foreground" aria-hidden />}
           title={hasActiveFilters ? "No tasks match your filters" : emptyLabel}
           description={hasActiveFilters ? "Try adjusting your search or filters." : "Create a task to get started."}
           action={
