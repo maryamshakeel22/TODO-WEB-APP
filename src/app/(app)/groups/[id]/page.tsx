@@ -9,7 +9,6 @@ import { getGroupDetail, listGroupMembers } from "@/lib/data/groups";
 import { listGroupInvitations } from "@/lib/data/invitations";
 import { listTodos } from "@/lib/data/todos";
 
-// Vercel par static caching disable karke dynamic render force karein
 export const dynamic = "force-dynamic";
 
 export default async function GroupDetailPage({
@@ -25,17 +24,42 @@ export default async function GroupDetailPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  const group = await getGroupDetail(id).catch(() => null);
+  let group = null;
+  try {
+    group = await getGroupDetail(id);
+  } catch (e) {
+    group = null;
+  }
+
   if (!group) notFound();
 
   const isAdminOrOwner = group.my_role === "owner" || group.my_role === "admin";
 
-  // Error catch add karne se page Vercel par hang hone se bachega
-  const [members, tasks, invitations] = await Promise.all([
-    listGroupMembers(id).catch(() => []),
-    group.my_role ? listTodos({ scope: { groupId: id } }).catch(() => []) : Promise.resolve([]),
-    isAdminOrOwner ? listGroupInvitations(id).catch(() => []) : Promise.resolve([]),
-  ]);
+  let members: any[] = [];
+  let tasks: any[] = [];
+  let invitations: any[] = [];
+
+  try {
+    members = await listGroupMembers(id);
+  } catch (e) {
+    members = [];
+  }
+
+  if (group.my_role) {
+    try {
+      tasks = await listTodos({ scope: { groupId: id } });
+    } catch (e) {
+      tasks = [];
+    }
+  }
+
+  if (isAdminOrOwner) {
+    try {
+      invitations = await listGroupInvitations(id);
+    } catch (e) {
+      invitations = [];
+    }
+  }
 
   return (
     <div className="space-y-6">
