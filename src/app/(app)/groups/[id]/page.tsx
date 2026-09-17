@@ -31,7 +31,7 @@ export default async function GroupDetailPage({
   let rawGroup = null;
   try {
     rawGroup = await getGroupDetail(id);
-  } catch (e) {
+  } catch {
     rawGroup = null;
   }
 
@@ -46,7 +46,6 @@ export default async function GroupDetailPage({
     );
   }
 
-  // Ensure plain JSON objects cross the boundary safely
   const group = JSON.parse(JSON.stringify(rawGroup));
   const isAdminOrOwner = group.my_role === "owner" || group.my_role === "admin";
 
@@ -57,7 +56,7 @@ export default async function GroupDetailPage({
   try {
     const rawMembers = await listGroupMembers(id);
     members = JSON.parse(JSON.stringify(rawMembers || []));
-  } catch (e) {
+  } catch {
     members = [];
   }
 
@@ -65,7 +64,7 @@ export default async function GroupDetailPage({
     try {
       const rawTasks = await listTodos({ scope: { groupId: id } });
       tasks = JSON.parse(JSON.stringify(rawTasks || []));
-    } catch (e) {
+    } catch {
       tasks = [];
     }
   }
@@ -74,7 +73,7 @@ export default async function GroupDetailPage({
     try {
       const rawInvitations = await listGroupInvitations(id);
       invitations = JSON.parse(JSON.stringify(rawInvitations || []));
-    } catch (e) {
+    } catch {
       invitations = [];
     }
   }
