@@ -46,7 +46,7 @@ export default async function GroupDetailPage({
     );
   }
 
-  // Safe serialization for Server-to-Client boundaries
+  // Purely serialize to strip any class instances, functions, or internal react nodes
   const group = JSON.parse(JSON.stringify(rawGroup));
   const isAdminOrOwner = group.my_role === "owner" || group.my_role === "admin";
 
