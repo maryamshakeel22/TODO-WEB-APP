@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GroupHeader } from "@/components/groups/group-header";
 import { MembersList } from "@/components/groups/members-list";
@@ -24,6 +24,12 @@ export default async function GroupDetailPage({
     data: { user },
   } = await supabase.auth.getUser();
 
+  // 1. Unauthenticated users ko login par bhejien (Reload Loop Stop karne ke liye)
+  if (!user) {
+    redirect(`/login?redirectTo=/groups/${id}`);
+  }
+
+  // 2. Safe Group Detail Fetching
   let group = null;
   try {
     group = await getGroupDetail(id);
@@ -31,7 +37,17 @@ export default async function GroupDetailPage({
     group = null;
   }
 
-  if (!group) notFound();
+  // 3. Agar group na miley to Reload loop ki bajaye proper UI show karein
+  if (!group) {
+    return (
+      <div className="rounded-lg border border-dashed border-destructive/50 p-8 text-center space-y-3">
+        <h3 className="text-lg font-medium text-destructive">Group Access Denied or Not Found</h3>
+        <p className="text-sm text-muted-foreground">
+          Aap is group ke member nahi hain ya ye ID exist nahi karti.
+        </p>
+      </div>
+    );
+  }
 
   const isAdminOrOwner = group.my_role === "owner" || group.my_role === "admin";
 
