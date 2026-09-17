@@ -37,7 +37,7 @@ export function GroupInvitationsPanel({
   }
 
   if (invitations.length === 0) {
-    return <EmptyState icon={Mail} title="No invitations sent yet" description="Invite members from the button above." />;
+    return <EmptyState  title="No invitations sent yet" description="Invite members from the button above." />;
   }
 
   return (

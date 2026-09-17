@@ -18,7 +18,6 @@ export function EmptyState({
   description,
   action,
 }: {
-  icon?: any;
   title: string;
   description?: string;
   action?: React.ReactNode;
@@ -97,7 +96,7 @@ export function ConfirmDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
             Cancel
           </Button>
-          <Button variant={destructive ? "destructive" : "default"} onClick={onConfirm} loading={loading}>
+          <Button variant={destructive ? "destructive" : "default"} onClick={onConfirm} disabled={loading}>
             {confirmLabel}
           </Button>
         </DialogFooter>

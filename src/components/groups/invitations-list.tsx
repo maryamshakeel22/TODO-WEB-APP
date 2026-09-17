@@ -29,7 +29,7 @@ export function InvitationsList({ invitations }: { invitations: InvitationWithRe
   }
 
   if (invitations.length === 0) {
-    return <EmptyState icon={Mail} title="No pending invitations" description="Group invitations you receive will show up here." />;
+    return <EmptyState title="No pending invitations" description="Group invitations you receive will show up here." />;
   }
 
   return (

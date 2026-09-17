@@ -25,7 +25,6 @@ export default async function GroupFinderPage({
 
       {groups.length === 0 ? (
         <EmptyState
-          icon={<Compass className="h-10 w-10 text-muted-foreground" />}
           title={params.q ? "No groups match your search" : "No public groups yet"}
           description={params.q ? "Try a different search term." : "Be the first to create one."}
         />

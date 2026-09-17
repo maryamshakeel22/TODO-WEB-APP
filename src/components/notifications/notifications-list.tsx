@@ -70,7 +70,7 @@ export function NotificationsList({
       </div>
 
       {notifications.length === 0 ? (
-        <EmptyState icon={Bell} title="No notifications yet" description="Activity on your tasks and groups will show up here." />
+        <EmptyState title="No notifications yet" description="Activity on your tasks and groups will show up here." />
       ) : (
         <div className="space-y-2">
           {notifications.map((n) => (

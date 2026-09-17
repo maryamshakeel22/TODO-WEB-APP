@@ -91,7 +91,6 @@ export default async function DashboardPage() {
           <CardContent>
             {recentTodos.length === 0 ? (
               <EmptyState
-                icon={<CheckSquare />}
                 title="No tasks yet"
                 description="Create your first task to get started."
                 action={
@@ -134,7 +133,6 @@ export default async function DashboardPage() {
             <CardContent>
               {groups.length === 0 ? (
                 <EmptyState
-                  icon={<Users />}
                   title="No groups yet"
                   description="Join or create a group to collaborate."
                   action={

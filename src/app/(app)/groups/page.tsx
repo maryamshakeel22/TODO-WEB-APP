@@ -44,7 +44,6 @@ export default async function GroupsPage() {
         <TabsContent value="groups">
           {groups.length === 0 ? (
             <EmptyState
-              icon={<Users className="h-10 w-10 text-muted-foreground" />}
               title="You haven't joined any groups yet"
               description="Create a group or discover public groups to join."
               action={
