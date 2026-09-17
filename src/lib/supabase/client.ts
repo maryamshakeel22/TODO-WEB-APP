@@ -10,7 +10,9 @@ import type { Database } from "@/types/database.types";
  */
 export function createClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const publishableKey = 
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || 
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!url || !publishableKey) {
     throw new Error(
@@ -19,5 +21,10 @@ export function createClient() {
     );
   }
 
-  return createBrowserClient<Database>(url, publishableKey);
+  return createBrowserClient<Database>(url, publishableKey, {
+    auth: {
+      persistSession: true, // <-- Yeh line session ko band hone ke baad bhi barqarar rakhegi
+      autoRefreshToken: true,
+    },
+  });
 }
