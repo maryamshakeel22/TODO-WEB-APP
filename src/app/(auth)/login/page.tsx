@@ -31,7 +31,10 @@ function LoginForm() {
     }
 
     toast.success("Welcome back!");
-    const redirectTo = sanitizeRedirect(searchParams.get("redirectTo"));
+    // Agar redirectTo maujood na ho ya home ho, toh direct dashboard par bhejien
+    const rawRedirect = searchParams.get("redirectTo");
+    const redirectTo = rawRedirect && rawRedirect !== "/" ? sanitizeRedirect(rawRedirect) : "/dashboard";
+    
     router.replace(redirectTo);
     router.refresh();
   }
