@@ -24,17 +24,15 @@ export default async function GroupDetailPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  // 1. Unauthenticated Check
   if (!user) {
     redirect(`/login?redirectTo=/groups/${id}`);
   }
 
-  // 2. Safe Group Data Fetching
   let group = null;
   try {
     group = await getGroupDetail(id);
   } catch (e) {
-    console.error("Failed to load group detail:", e);
+    console.error("Group detail fetch error:", e);
     group = null;
   }
 
@@ -55,40 +53,46 @@ export default async function GroupDetailPage({
   let tasks: any[] = [];
   let invitations: any[] = [];
 
-  // 3. Safe Parallel/Independent Data Fetching
   try {
-    members = await listGroupMembers(id);
+    const rawMembers = await listGroupMembers(id);
+    members = JSON.parse(JSON.stringify(rawMembers || []));
   } catch (e) {
     members = [];
   }
 
   if (group.my_role) {
     try {
-      tasks = (await listTodos({ scope: { groupId: id } })) ?? [];
+      const rawTasks = await listTodos({ scope: { groupId: id } });
+      tasks = JSON.parse(JSON.stringify(rawTasks || []));
     } catch (e) {
-      console.error("Failed to fetch group tasks:", e);
       tasks = [];
     }
   }
 
   if (isAdminOrOwner) {
     try {
-      invitations = (await listGroupInvitations(id)) ?? [];
+      const rawInvitations = await listGroupInvitations(id);
+      invitations = JSON.parse(JSON.stringify(rawInvitations || []));
     } catch (e) {
       invitations = [];
     }
   }
 
+  // Safe serializable group object
+  const safeGroup = JSON.parse(JSON.stringify(group));
+
   return (
     <div className="space-y-6">
-      <GroupHeader group={group} myRole={group.my_role} />
+      <GroupHeader group={safeGroup} myRole={safeGroup.my_role} />
 
-      {group.my_role ? (
+      {safeGroup.my_role ? (
         <Tabs defaultValue="tasks">
           <TabsList>
             <TabsTrigger value="tasks">Tasks ({tasks.length})</TabsTrigger>
             <TabsTrigger value="members">Members ({members.length})</TabsTrigger>
-            {isAdminOrOwner ? <TabsTrigger value="invitations">Invitations ({invitations.length})</TabsTrigger> : null}
+            {isAdminOrOwner ? (
+              <TabsTrigger value="invitations">Invitations ({invitations.length})</TabsTrigger>
+            ) : null}
           </TabsList>
           <TabsContent value="tasks">
             <TaskList
@@ -97,11 +101,11 @@ export default async function GroupDetailPage({
               groupId={id}
               groupMembers={members}
               emptyLabel="No tasks in this group yet"
-              canCreate={Boolean(group.my_role)}
+              canCreate={Boolean(safeGroup.my_role)}
             />
           </TabsContent>
           <TabsContent value="members">
-            <MembersList groupId={id} members={members} myRole={group.my_role} currentUserId={user.id} />
+            <MembersList groupId={id} members={members} myRole={safeGroup.my_role} currentUserId={user.id} />
           </TabsContent>
           {isAdminOrOwner ? (
             <TabsContent value="invitations">
