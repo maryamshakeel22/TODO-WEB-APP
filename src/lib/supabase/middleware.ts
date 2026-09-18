@@ -34,25 +34,16 @@ export async function updateSession(request: NextRequest) {
       getAll() {
         return request.cookies.getAll();
       },
-
-      setAll(
-        cookiesToSet: {
-          name: string;
-          value: string;
-          options: CookieOptions;
-        }[]
-      ) {
-        cookiesToSet.forEach(({ name, value }) => {
-          request.cookies.set(name, value);
-        });
-
+      setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
+        cookiesToSet.forEach(({ name, value }) =>
+          request.cookies.set(name, value)
+        );
         supabaseResponse = NextResponse.next({
           request,
         });
-
-        cookiesToSet.forEach(({ name, value, options }) => {
-          supabaseResponse.cookies.set(name, value, options);
-        });
+        cookiesToSet.forEach(({ name, value, options }) =>
+          supabaseResponse.cookies.set(name, value, options)
+        );
       },
     },
   });
@@ -63,21 +54,13 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // User is NOT logged in
-  // Protected pages → /login
   if (!user && !isPublicPath(pathname)) {
     const redirectUrl = new URL("/login", request.url);
     redirectUrl.searchParams.set("redirectTo", pathname);
-
     return NextResponse.redirect(redirectUrl);
   }
 
-  // User IS logged in
-  // Home/login/signup/forgot-password → /dashboard
-  if (
-    user &&
-    ["/", "/login", "/signup", "/forgot-password"].includes(pathname)
-  ) {
+  if (user && ["/login", "/signup", "/forgot-password"].includes(pathname)) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
